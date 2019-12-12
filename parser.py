@@ -8,6 +8,9 @@ def get_site(url):
 
 def html_parser(date, city):
 
+    #Одинцово
+    #sc-1h5tg87-0 duYTXo title
+
     films_dict = {"films": {}, "exception": False}
     r = get_site("https://kino-galaktika.ru/cinema/?date="+date+"&city="+city+"&facility=kinogalaktika")
     soup = BeautifulSoup(r, "lxml")
