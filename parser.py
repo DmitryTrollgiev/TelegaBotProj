@@ -8,14 +8,14 @@ def get_site(url):
 
 def html_parser(date):
 
-    films_dict = {}
+    films_dict = {"films": {}, "exception": False}
     r = get_site("https://kino-galaktika.ru/cinema/?date="+date+"&city=lytkarino&facility=kinogalaktika")
     soup = BeautifulSoup(r, "lxml")
 
     for link in soup.find_all("div", class_="sc-bdVaJa sc-bwzfXH iPDSpD event-info"):
         #Название фильма
         film_name = link.find("a", class_="event-name").text
-        films_dict[film_name] = {}
+        films_dict["films"][film_name] = {}
         print(film_name)
 
         #Нашли тег с расписанием
@@ -43,10 +43,11 @@ def html_parser(date):
                 film_type_list.append("???")
 
         if len(time_list) == len(price_list) and len(film_type_list) == len(time_list):
+            #Заносим в словарь
             for i in range(len(time_list)):
-                print(time_list[i],price_list[i],film_type_list[i])
+                films_dict["films"][film_name][time_list[i]] = {"price": price_list[i], "type": film_type_list[i]}
         else:
-            print("Ошибка")
+            films_dict["exception"] = True
 
     return films_dict
 
@@ -55,8 +56,10 @@ def to_json(d):
     return result_json
 
 def processing(date):
+    #Города
+    cities = ["lytkarino", "odintsovo","cheboksari"]
     content = html_parser(date)
     return to_json(content)
 
 if __name__ == "__main__":
-    processing("13/12/2019")
+    print(processing("13/12/2019"))
