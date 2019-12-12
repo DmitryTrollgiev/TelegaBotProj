@@ -2,12 +2,30 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
+def parser_outer(bot, message, jsn):
+    d = json.loads(jsn)
+    for film in d["films"]:
+        out_str = "<b>"+film+"</b>"
+
+        film_timetables = d["films"][film]
+        for timetable in film_timetables:
+            content = film_timetables[timetable]
+            out_str += "\n"+timetable+" - "+content["price"]+" в "+content["type"]
+        
+        bot.reply_to(message, out_str,parse_mode='HTML')
+        print(out_str)
+
 def get_site(url):
+    """
+    Функция получения HTML-кода сайта
+    """
     r = requests.get(url).text
     return r
 
 def locale_html_parser(url):
-
+    """
+    Функция генерации словаря на основе расписания + парсинг сайта
+    """
     locale_dict = {}
     #Парсим ссылку с фильмом
     locale_soup = BeautifulSoup(get_site(url), "lxml")
@@ -33,11 +51,6 @@ def locale_html_parser(url):
             film_type_list.append(film_str)
         else:
             film_type_list.append("???")
-                    
-
-    print(time_list)
-    print(price_list)
-    print(film_type_list)
 
     if len(time_list) == len(price_list) and len(film_type_list) == len(time_list):
         #Заносим в словарь
@@ -49,7 +62,10 @@ def locale_html_parser(url):
     else:
         return {"info": {}, "exception": True}
     
-def html_parser(date, city):
+def html_parser(bot, message, date, city):
+    """
+    Основной генератор-парсер словаря
+    """
 
     URL = "https://kino-galaktika.ru"
 
@@ -75,17 +91,15 @@ def html_parser(date, city):
         result = locale_html_parser(films_urls[film])
         films_dict[film] = result
 
-
-
     return films_dict
 
 def to_json(d):
+    """
+    Перевод в JSON
+    """
     result_json = json.dumps(d,ensure_ascii=False)
     return result_json
 
-def processing(date, city):
-    content = html_parser(date, city)
-    return to_json(content)
 
 if __name__ == "__main__":
     r = processing("2019/12/15","lytkarino")
