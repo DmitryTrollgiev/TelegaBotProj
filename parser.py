@@ -6,10 +6,10 @@ def get_site(url):
     r = requests.get(url).text
     return r
 
-def html_parser(date):
+def html_parser(date, city):
 
     films_dict = {"films": {}, "exception": False}
-    r = get_site("https://kino-galaktika.ru/cinema/?date="+date+"&city=lytkarino&facility=kinogalaktika")
+    r = get_site("https://kino-galaktika.ru/cinema/?date="+date+"&city="+city+"&facility=kinogalaktika")
     soup = BeautifulSoup(r, "lxml")
 
     for link in soup.find_all("div", class_="sc-bdVaJa sc-bwzfXH iPDSpD event-info"):
@@ -55,11 +55,8 @@ def to_json(d):
     result_json = json.dumps(d,ensure_ascii=False)
     return result_json
 
-def processing(date):
-    #Города
-    cities = ["lytkarino", "odintsovo","cheboksari"]
-    content = html_parser(date)
+def processing(date, city):
+    content = html_parser(date, city)
     return to_json(content)
 
-if __name__ == "__main__":
-    print(processing("13/12/2019"))
+
