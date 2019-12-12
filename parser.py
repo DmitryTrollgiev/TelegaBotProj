@@ -10,9 +10,11 @@ def html_parser(date, city):
 
     #Одинцово
     #sc-1h5tg87-0 duYTXo title
+    
 
     films_dict = {"films": {}, "exception": False}
-    r = get_site("https://kino-galaktika.ru/cinema/?date="+date+"&city="+city+"&facility=kinogalaktika")
+    #r = get_site("https://kino-galaktika.ru/cinema/?date="+date+"&city="+city+"&facility=kinogalaktika")
+    r = get_site("https://kino-galaktika.ru/?date="+date+"&city="+city)
     soup = BeautifulSoup(r, "lxml")
 
     for link in soup.find_all("div", class_="sc-bdVaJa sc-bwzfXH iPDSpD event-info"):
