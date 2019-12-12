@@ -31,27 +31,23 @@ def html_parser(date):
         for price in all_timetables.find_all("div", class_="sc-bdVaJa sc-bwzfXH sw9zb-0 dDMLGB price"):
             price_list.append(price.text)
         
-        print(len(time_list))
-        print(len(price_list))
+        #Тип фильма (3D/2D) для всех сенсов текущего фильма
+        film_type_list = []
+        for film_type in all_timetables.find_all("div", class_="sc-bdVaJa sc-bwzfXH gYCEQ sw9zb-1 jXcRgy formats"):
+            film_str = film_type.text
+            if film_str == "":
+                film_type_list.append("2D")
+            elif film_str == "3D":
+                film_type_list.append(film_str)
+            else:
+                film_type_list.append("???")
 
-        if len(time_list) == len(price_list):
+        if len(time_list) == len(price_list) and len(film_type_list) == len(time_list):
             for i in range(len(time_list)):
-                print(time_list[i],price_list[i])
-            
+                print(time_list[i],price_list[i],film_type_list[i])
         else:
-            print("ОШИБКА НЕ ПОНТНО ЧТО ДЕЛАТЬ")
-        
+            print("Ошибка")
 
-
-            
-
-        #Расписание
-
-
-
-    #for link in soup.find_all("div", class_="sc-bdVaJa sc-bwzfXH iPDSpD event-info"):
-    #    print(link.find_all("a", class_="event-name"))
-    
     return films_dict
 
 def to_json(d):
