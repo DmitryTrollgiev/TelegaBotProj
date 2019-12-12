@@ -2,18 +2,18 @@ import json
 import requests
 from bs4 import BeautifulSoup
 
-def parser_outer(bot, message, jsn):
+def parser_outer(bot, message, jsn, film_name):
     d = json.loads(jsn)
-    for film in d["films"]:
-        out_str = "<b>"+film+"</b>"
-
-        film_timetables = d["films"][film]
-        for timetable in film_timetables:
-            content = film_timetables[timetable]
+    out_str = "<b>"+film_name+"</b>"
+    if d["exception"] == False:
+        for timetable in d["info"]:
+            content = d["info"][timetable]
             out_str += "\n"+timetable+" - "+content["price"]+" в "+content["type"]
-        
-        bot.reply_to(message, out_str,parse_mode='HTML')
-        print(out_str)
+            
+        bot.reply_to(message, out_str, parse_mode='HTML')
+    else:
+        bot.reply_to(message, "<b>"+film_name+"</b>\nОшибка парсинга", parse_mode='HTML')
+
 
 def get_site(url):
     """
@@ -69,8 +69,6 @@ def html_parser(bot, message, date, city):
 
     URL = "https://kino-galaktika.ru"
 
-    #Основной словарь 
-    films_dict = {}
     r = get_site(URL+"/?date="+date+"&city="+city)
     soup = BeautifulSoup(r, "lxml")
     
@@ -83,15 +81,14 @@ def html_parser(bot, message, date, city):
             if "&city="+city in a['href']:
                 
                 film_name = link.text
-                if film_name not in films_dict:
+                if film_name not in films_urls:
                     films_urls[film_name] = URL+a['href']
                 
     #Для каждого фильма получаем расписание в отельной функции    
     for film in films_urls:
         result = locale_html_parser(films_urls[film])
-        films_dict[film] = result
-
-    return films_dict
+        json_result = to_json(result)
+        parser_outer(bot, message, json_result, film)
 
 def to_json(d):
     """
@@ -99,8 +96,3 @@ def to_json(d):
     """
     result_json = json.dumps(d,ensure_ascii=False)
     return result_json
-
-
-if __name__ == "__main__":
-    r = processing("2019/12/15","lytkarino")
-    print(r)
