@@ -52,7 +52,7 @@ def html_parser(date):
     return films_dict
 
 def to_json(d):
-    result_json = json.dumps(d)
+    result_json = json.dumps(d,ensure_ascii=False)
     return result_json
 
 def processing(date):

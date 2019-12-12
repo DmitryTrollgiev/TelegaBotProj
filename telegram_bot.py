@@ -1,12 +1,17 @@
+import json
 import telebot
 import parser
+
 API_TOKEN = "908179410:AAGTLbJbC1n6AnLbqq66cfLlQV9YdC48llU"
 
 bot = telebot.TeleBot(API_TOKEN)
-
 users_d = {}
 
-# Handle '/start' and '/help'
+def parser_formater(jsn):
+    d = json.loads(jsn)
+    return d
+
+#Обработка старта программы
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
     if message.from_user.id not in users_d:
@@ -24,8 +29,12 @@ def check_date(message):
             new_date = date[2]+"/"+date[1]+"/"+date[0]
             users_d[message.from_user.id]["date"] = new_date
             bot.reply_to(message, "Подождите..")
+            #Получает JSON от модуля парсера
             result = parser.processing(new_date)
-            bot.reply_to(message, result)
+            #Переводит JSON в красивую строку
+            formated_result = parser_formater(result)
+            #Отдаёт результат боту
+            bot.reply_to(message, formated_result)
         except:
             bot.reply_to(message, "Неверный формат ввода даты!")
 
