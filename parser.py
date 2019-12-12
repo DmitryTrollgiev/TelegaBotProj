@@ -59,4 +59,3 @@ def processing(date, city):
     content = html_parser(date, city)
     return to_json(content)
 
-

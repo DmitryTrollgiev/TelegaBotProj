@@ -7,12 +7,19 @@ API_TOKEN = "908179410:AAGTLbJbC1n6AnLbqq66cfLlQV9YdC48llU"
 bot = telebot.TeleBot(API_TOKEN)
 users_d = {}
 
-def parser_formater(jsn):
+def parser_outer(message, jsn):
     d = json.loads(jsn)
-    for film in d:
-        print(film)
-    print(d)
-    return d
+    for film in d["films"]:
+        out_str = film
+
+        film_timetables = d["films"][film]
+        for timetable in film_timetables:
+            content = film_timetables[timetable]
+            out_str += "\n"+timetable+" ["+content["price"]+" "+content["type"]+"]"
+        
+        bot.reply_to(message, out_str)
+        print(out_str)
+
 
 #Обработка старта программы
 @bot.message_handler(commands=["start"])
@@ -49,11 +56,10 @@ def check_date(message):
             bot.reply_to(message, "Подождите..")
             #Получает JSON от модуля парсера
             result = parser.processing(new_date, current_city)
-            #Переводит JSON в красивую строку
-            formated_result = parser_formater(result)
-            #Отдаёт результат боту
-            bot.reply_to(message, formated_result)
+            #Переводит JSON в красивую строку и отдаёт результат боту
+            parser_outer(bot, message, result)
+            
         except:
-            bot.reply_to(message, "Неверный формат ввода даты!")
+            bot.reply_to(message, "Что-то пошло не та при обработке вашего запроса")
 
 bot.polling()
