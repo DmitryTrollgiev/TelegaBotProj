@@ -8,6 +8,24 @@ def get_site(url):
     r = requests.get(url).text
     return r
 
+def dict_list_converter(d):
+    """
+    Функция преобразования из словаря в список
+    Нужна для удобной отдачи сообщений ботом
+    """
+    out_list = []
+    
+    for element in d:
+        if d[element] != {}:
+            buf_str = "<b>"+element+"</b>"
+            for time in d[element]:
+                e = d[element][time]
+                buf_str+= "\n" + time+" - " + e["price"] + " в " + e["type"]
+
+            out_list.append(buf_str)
+    
+    return out_list
+
 def html_parser(new_date, current_city):
     """
     Основная функция парсинга
@@ -24,7 +42,6 @@ def html_parser(new_date, current_city):
         
         #Получаем название фильма
         film_name = film.find("a", class_="event-name").text
-        print("\n"+film_name)
         
         #Секция с расписанием
         timetable = film.find("div", class_="sc-bdVaJa sc-bwzfXH iNSiJW schedule")
@@ -40,10 +57,11 @@ def html_parser(new_date, current_city):
             
             #Формат сеанса (Dolby Atmos/3D/2D)
             tformat = time.find("div", class_="sc-bdVaJa sc-bwzfXH gYCEQ sw9zb-1 mZNTg formats").text
-            print(tformat)
+            if tformat == "":
+                tformat = "2D"
 
             locale_dict[clock_time] = {"price": price, "type": tformat}
         
         return_dict[film_name] = locale_dict
     
-    return return_dict
+    return dict_list_converter(return_dict)
